@@ -3,11 +3,13 @@
   <HelloWorld msg="Welcome to Your Vue.js App"/> -->
       <div class='container'>
         <div class='circle'>
-            <div v-bind:class='{lighter: clicked1}' class='red' data-index='0'></div>
-            <!-- <part></part> -->
-            <div v-bind:class='{lighter: clicked2}' class='green' data-index='1'></div>
-            <div v-bind:class='{lighter: clicked3}' class='blue' data-index='2'></div>
-            <div v-bind:class='{lighter: clicked4}' class='yellow' data-index='3'></div>
+          
+            <!-- <part v-for="(item, i) in parts" v-bind:key="item" v-bind:class='[item, showActivePart(i)]'></part> -->
+
+            <div :class="{lighter: showActivePart(0)}" class='red' data-index='0' ></div>
+            <div :class="{lighter: showActivePart(1)}" class='green' data-index='1' ></div>
+            <div :class="{lighter: showActivePart(2)}" class='blue' data-index='2'></div>
+            <div :class="{lighter: showActivePart(3)}" class='yellow' data-index='3'></div>
         </div>
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
@@ -16,18 +18,24 @@
         </div>
         <div class='game-levels'>
             <h3>Game Levels</h3>
-            <p><input type='radio' name='level' class='light' value='1500' checked>Light</p>
+            <p><input type='radio' name='level' class='light' value='1500'  checked>Light</p>
             <p><input type='radio' name='level' class='normal' value='1000'>Normal</p>
             <p><input type='radio' name='level' class='hard' value='0.4'>Hard</p>
         </div>
-        <div v-html='sound' class='audio-files'></div>
+        <div  class='audio-files'>
+          <audio v-bind="{autoplay: playSound}">
+            <source :src="require(`./assets/sounds/sound${soundNumber}.mp3`)">
+            <!-- <source src="./assets/sounds/sound3.mp3"> -->
+            <!-- <source src="../public/sounds/sound3.mp3"> -->
+            <!-- <source :src="getUrl(soundNumber)"> -->
+          </audio>
+        </div>
+        <!-- v-html='sound' -->
     </div>
 </template>
 
 <script>
-// import part from './components/circle-part.vue'
-// console.log('part: ', part);
-
+// import part from './components/part.vue'
 
 export default {
   name: 'App',
@@ -39,36 +47,38 @@ export default {
       round: 0,
       arr: [],
       sound: '',
+      playSound: false,
       disabled: false,
-      clicked1: false,
-      clicked2: false,
-      clicked3: false,
-      clicked4: false,
-      parts: document.querySelectorAll('.circle div')
+      soundNumber: 1,
+      index: 5,
+      parts: ['red', 'green', 'blue', 'yellow']
     };
   },
   methods: {
+    showActivePart(ind) {
+        return ind === this.index
+    },
+    getUrl(n) {
+      return require(`./assets/sounds/sound${n}.mp3`)
+      // return require(`C:/media/sound${n}.mp3`)
+    //   return require(`../public/sounds/sound${n}.mp3`)
+    },
     startGame() {
       this.round++;
     //   this.showRoundNumber(this.round);
       this.showPart(this.round);
-      //console.log('this.parts[item]: ', part);
-    },
-    showRoundNumber() {
-      // console.log(number);
     },
     renderRandom() {
       return Math.floor(Math.random() * 4);
     },
-    // doesnt work
     renderSound(number) {
       this.sound = `
         <audio autoplay>
-            <source src="./sounds/sound${number}.mp3">
+            <source src="../public/sounds/sound${number}.mp3">
         </audio>`;
     },
     showPart(row) {
-      console.log('row: ', row);
+      // console.log('row: ', row);
       this.disabled = true;
       for (let i = 0; i < row; i++) {
         this.arr.push(this.renderRandom());
@@ -76,11 +86,12 @@ export default {
       console.log('arr: ', this.arr);
       this.arr.forEach((item, index) => {
         if (index === 0) {
-            // this.clicked = true;
+            this.index = item;
             
-            // this.parts[item].classList.add('lighter');
-            
-            this.renderSound(index + 1);
+            // this.renderSound(index + 1);
+            this.playSound = true;
+            this.soundNumber = item;
+            console.log('this.soundNumber: ', this.soundNumber);
             // setTimeout(() => {
             //     this.parts[item].classList.remove('lighter');
             //     if (index === this.arr.length - 1) {
