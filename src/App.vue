@@ -22,6 +22,7 @@
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
             <button v-bind:disabled='disabledBtn' @click='startGame' class='start'>Start</button>
+            <p>{{ arr }}</p>
             <p v-show='lost' class='lost-message'>Sorry, you lost after <span class='round'>{{ round }}</span> rounds</p>
         </div>
         <div @change='changeLevel' class='game-levels'>
@@ -83,6 +84,7 @@ export default {
         this.arr = [];
     },
     showActivePart(ind) {
+      // console.log(this.round);
         // to prevent click, when index > 5  
         if (this.activePartIndex < 5) {
           setTimeout(() => {
@@ -131,7 +133,7 @@ export default {
         return
       }
       console.log('in handle click');
-
+      
       event.target.classList.add('lighter');
       this.hasClass.push(event.target);
       if (this.hasClass.length > 1) {
@@ -153,15 +155,18 @@ export default {
       } else {
         // console.log('continue');
         // console.log(event.target.classList);
+        
         event.target.classList.add('lighter');
         this.partsClick++;
         if (this.partsClick === this.arr.length) {
           // console.log('this.arr.length - 1: ', this.arr.length - 1);
           // console.log('this.partsClick: ', this.partsClick);
+          
           setTimeout(() => {
             event.target.classList.remove('lighter');
           }, 200);
           this.round++;
+          this.arr = [];
           this.partsClick = 0;
           setTimeout(() => {
             this.showPart(this.round);
@@ -170,15 +175,20 @@ export default {
         }       
       }
     },
-    showPart(row) {
+    showPart() {
       // console.log('row: ', row);
       // console.log('in showpart');
-
-      for (let i = 0; i < row; i++) {
+      
+      for (let i = 0; i < this.round; i++) {
         this.arr.push(this.renderRandom());
       }
-      console.log('arr: ', this.arr);
+      // чтобы в массив добавлялось не больше 1 элемента 
+      if (this.arr.length > this.round) {
+        this.arr =  this.arr.slice(0, this.round);
+      }
+      // console.log('arr: ', this.arr);
       this.arr.forEach((item, index) => {
+        // console.log(this.round);
         setTimeout(() => {
             if (index === this.arr.length - 1) {
                 this.disabledBtn = false;
