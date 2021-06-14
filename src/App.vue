@@ -24,15 +24,15 @@
             <button v-bind:disabled='disabled' @click='startGame' class='start'>Start</button>
             <p class='lost-message d-none'>Sorry, you lost after <span class='round'>{{ round }}</span> rounds</p>
         </div>
-        <div class='game-levels'>
+        <div @change='changeLevel' class='game-levels'>
             <h3>Game Levels</h3>
             <p><input type='radio' name='level' class='light' value='1500'  checked>Light</p>
             <p><input type='radio' name='level' class='normal' value='1000'>Normal</p>
-            <p><input type='radio' name='level' class='hard' value='0.4'>Hard</p>
+            <p><input type='radio' name='level' class='hard' value='400'>Hard</p>
         </div>
         <div  class='audio-files'>
           <audio v-bind="{autoplay: playSound}">
-            <source :src="require(`./assets/sounds/sound${soundNumber}.mp3`)">
+            <!-- <source :src="require(`./assets/sounds/sound${soundNumber}.mp3`)"> -->
             <!-- <source src="./assets/sounds/sound3.mp3"> -->
             <!-- <source src="../public/sounds/sound3.mp3"> -->
             <!-- <source :src="getUrl(soundNumber)"> -->
@@ -67,6 +67,11 @@ export default {
     };
   },
   methods: {
+    changeLevel(event) {
+        this.time = Number(event.target.value);
+        this.round = 0;
+        this.arr = [];
+    },
     showActivePart(ind) {
         // to prevent click, when index > 5
         this.disabled = true;
