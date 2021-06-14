@@ -5,11 +5,19 @@
         <div class='circle'>
           
             <!-- <part v-for="(item, i) in parts" v-bind:key="item" v-bind:class='[item, showActivePart(i)]'></part> -->
-
-            <div :class="{lighter: showActivePart(0)}" class='red' data-index='0' ></div>
-            <div :class="{lighter: showActivePart(1)}" class='green' data-index='1' ></div>
-            <div :class="{lighter: showActivePart(2)}" class='blue' data-index='2'></div>
-            <div :class="{lighter: showActivePart(3)}" class='yellow' data-index='3'></div>
+            <div 
+            v-for="(item, i) in parts" 
+            v-bind:key="item" 
+            :class="[item, {lighter: showActivePart(i)}]" 
+            @click='handleClick' 
+            style="color: white; text-align: center; padding-top: 40px"
+            data-index='0'>
+            {{i}}
+            </div>
+            <!-- <div :class="{lighter: showActivePart(0)}" v-bind:disabled='disabled' @click='handleClick' class='red' data-index='0' ></div>
+            <div :class="{lighter: showActivePart(1)}" v-bind:disabled='disabled' @click='handleClick' class='green' data-index='1' ></div>
+            <div :class="{lighter: showActivePart(2)}" v-bind:disabled='disabled' @click='handleClick' class='blue' data-index='2'></div>
+            <div :class="{lighter: showActivePart(3)}" v-bind:disabled='disabled' @click='handleClick' class='yellow' data-index='3'></div> -->
         </div>
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
@@ -44,19 +52,38 @@ export default {
   },
   data() {
     return {
-      round: 0,
+      round: 3,
       arr: [],
       sound: '',
       playSound: false,
       disabled: false,
+      show: false,
+      gameStarted: false,
       soundNumber: 1,
-      index: 5,
-      parts: ['red', 'green', 'blue', 'yellow']
+      parts: ['red', 'green', 'blue', 'yellow'],
+      activePartIndex: 5,
+      time: 1500,
+      timeDelay: 1
     };
   },
   methods: {
     showActivePart(ind) {
-        return ind === this.index
+        // to prevent click, when index > 5
+        this.disabled = true;
+        if (this.activePartIndex < 5) {
+          setTimeout(() => {
+          console.log('this.time * timeDelay: ', this.time * this.timeDelay);
+            // to remove class
+            console.log('in timeout');
+            this.activePartIndex = 5;
+            this.disabled = false;
+        }, this.time * this.timeDelay); //1500
+        }
+
+        console.log('this.activePartIndex: ', this.activePartIndex);
+        // to prevent click, when index > 5
+        this.disabled = false;
+        return ind === this.activePartIndex;
     },
     getUrl(n) {
       return require(`./assets/sounds/sound${n}.mp3`)
@@ -64,8 +91,8 @@ export default {
     //   return require(`../public/sounds/sound${n}.mp3`)
     },
     startGame() {
+      console.log('in start game');
       this.round++;
-    //   this.showRoundNumber(this.round);
       this.showPart(this.round);
     },
     renderRandom() {
@@ -77,21 +104,46 @@ export default {
             <source src="../public/sounds/sound${number}.mp3">
         </audio>`;
     },
+    handleClick(event){
+      // cant click before parts are shown
+      if (this.disabled) {
+        return
+      }
+      console.log('in handle click');
+      console.log(event.target.dataset.index);
+    },
+    gamerAction(arr, row) {
+      console.log('row: ', row);
+      console.log('arr: ', arr);
+      console.log('in gameraction');
+    },
     showPart(row) {
       // console.log('row: ', row);
+      console.log('in showpart');
       this.disabled = true;
       for (let i = 0; i < row; i++) {
         this.arr.push(this.renderRandom());
       }
       console.log('arr: ', this.arr);
       this.arr.forEach((item, index) => {
+        setTimeout(() => {
+            this.timeDelay = (index + 1) * this.arr.length;
+            this.activePartIndex = item;
+            console.log('this.activePartindex: ', this.activePartIndex);
+        }, this.time * index)
+
         if (index === 0) {
-            this.index = item;
-            
+          // to add a class Lighter
+            // this.showParts = true;
+            // this.index = item;
+            //to play audio
             // this.renderSound(index + 1);
             this.playSound = true;
             this.soundNumber = item;
-            console.log('this.soundNumber: ', this.soundNumber);
+            // if (index === this.arr.length - 1) {
+            //         this.gamerAction(this.arr, row);
+            //         // return arr;
+            // }
             // setTimeout(() => {
             //     this.parts[item].classList.remove('lighter');
             //     if (index === this.arr.length - 1) {
@@ -137,7 +189,7 @@ export default {
         //     }
         }
 
-    });
+      });
     }
   }
 }
