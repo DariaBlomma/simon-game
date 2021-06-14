@@ -106,6 +106,7 @@ export default {
     },
     startGame() {
       // console.log('in start game');
+      this.lost = false;
       this.btnClick++;
       if (this.btnClick > 1) {
         return;
@@ -144,9 +145,14 @@ export default {
         //   console.log('stop');
         this.lost = true;
         this.partsClick = 0;
+        this.btnClick = 0;
+        setTimeout(() => {
+            event.target.classList.remove('lighter');
+            this.arr = [];
+        }, 200);
       } else {
         // console.log('continue');
-        console.log(event.target.classList);
+        // console.log(event.target.classList);
         event.target.classList.add('lighter');
         this.partsClick++;
         if (this.partsClick === this.arr.length) {
@@ -164,15 +170,10 @@ export default {
         }       
       }
     },
-    gamerAction(arr, row) {
-      console.log('row: ', row);
-      console.log('arr: ', arr);
-      // console.log('in gameraction');
-    },
     showPart(row) {
       // console.log('row: ', row);
-      console.log('in showpart');
-      
+      // console.log('in showpart');
+
       for (let i = 0; i < row; i++) {
         this.arr.push(this.renderRandom());
       }
@@ -185,66 +186,20 @@ export default {
             }
             this.timeDelay = (index + 1) * this.arr.length;
             this.activePartIndex = item;
+            // если элементы дублируются, то будет эффект мигания прозрачности
+            if (this.arr.length > 0 || index + 1 <= this.arr.length) {
+              if (this.arr[index] === this.arr[index - 1] || this.arr[index] === this.arr[index + 1]) {
+                this.activePartIndex = 5;
+                setTimeout(() => {
+                  this.activePartIndex = item;
+                }, 300);
+              }
+            }
             // console.log('this.activePartindex: ', this.activePartIndex);
         }, this.time * index)
 
-        if (index === 0) {
-          // to add a class Lighter
-            // this.showParts = true;
-            // this.index = item;
-            //to play audio
-            // this.renderSound(index + 1);
-            this.playSound = true;
-            this.soundNumber = item;
-            // if (index === this.arr.length - 1) {
-            //         this.gamerAction(this.arr, row);
-            //         // return arr;
-            // }
-            // setTimeout(() => {
-            //     this.parts[item].classList.remove('lighter');
-            //     if (index === this.arr.length - 1) {
-            //         gamerAction(arr, row);
-            //         // return arr;
-            //     }
-            // }, time); //1500
-        } else {
-        //     parts.forEach(elem => {
-        //         if (!elem.classList.contains('lighter')) {
-        //             setTimeout(() => {
-        //                 parts[item].classList.add('lighter');
-        //                 renderSound(index + 1);
-        //             }, time * index);
-        //             //1500, index 1
-        //             // 3000, index 2
-        //             setTimeout(() => {
-        //                 parts[item].classList.remove('lighter');
-        //                 // if (index === arr.length - 1) {
-        //                 //     console.log('row: ', row);
-        //                 //     gamerAction(arr, row);
-        //                 // }
-        //             }, time * (index + 1));
-        //             //3000, index 1
-        //             // 4500, index 2
-        //         }
-        //     });
-        //     // setTimeout(() => {
-        //     //     if (index === arr.length - 1) {
-        //     //         console.log('row: ', row);
-        //     //         gamerAction(arr, row);
-        //     //         //return arr;
-        //     //     }
-        //     // }, time * (index + 1));
-
-        //     if (index === arr.length - 1) {
-        //         setTimeout(() => {
-        //             //console.log('row: ', row);
-        //             gamerAction(arr, row);
-                    
-        //             //return arr;
-        //         }, time * (index + 1));
-        //     }
-        }
-
+            // this.playSound = true;
+            // this.soundNumber = item;
       });
     }
   }
