@@ -11,7 +11,7 @@
             :class="[item, {lighter: showActivePart(i)}]" 
             @click='handleClick' 
             style="color: white; text-align: center; padding-top: 40px"
-            data-index='0'>
+            :data-index=i>
             {{i}}
             </div>
             <!-- <div :class="{lighter: showActivePart(0)}" v-bind:disabled='disabled' @click='handleClick' class='red' data-index='0' ></div>
@@ -52,18 +52,18 @@ export default {
   },
   data() {
     return {
-      round: 3,
+      round: 0,
       arr: [],
+      hasClass: [],
       sound: '',
       playSound: false,
       disabled: false,
-      show: false,
-      gameStarted: false,
       soundNumber: 1,
       parts: ['red', 'green', 'blue', 'yellow'],
       activePartIndex: 5,
       time: 1500,
-      timeDelay: 1
+      timeDelay: 1,
+      click: 1
     };
   },
   methods: {
@@ -115,7 +115,12 @@ export default {
         return
       }
       console.log('in handle click');
-      console.log(event.target.dataset.index);
+      event.target.classList.add('lighter');
+      this.hasClass.push(event.target);
+      if (this.hasClass.length > 1) {
+        this.hasClass[0].classList.remove('lighter');
+        this.hasClass.shift(0);
+      }
     },
     gamerAction(arr, row) {
       console.log('row: ', row);
