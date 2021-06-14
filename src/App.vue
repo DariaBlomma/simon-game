@@ -14,10 +14,6 @@
             :data-index=i>
             {{i}}
             </div>
-            <!-- <div :class="{lighter: showActivePart(0)}" v-bind:disabled='disabled' @click='handleClick' class='red' data-index='0' ></div>
-            <div :class="{lighter: showActivePart(1)}" v-bind:disabled='disabled' @click='handleClick' class='green' data-index='1' ></div>
-            <div :class="{lighter: showActivePart(2)}" v-bind:disabled='disabled' @click='handleClick' class='blue' data-index='2'></div>
-            <div :class="{lighter: showActivePart(3)}" v-bind:disabled='disabled' @click='handleClick' class='yellow' data-index='3'></div> -->
         </div>
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
@@ -32,9 +28,10 @@
             <p><input type='radio' name='level' class='hard' value='400'>Hard</p>
         </div>
         <div  class='audio-files'>
-          <audio v-bind="{autoplay: playSound}">
+          <audio autoplay>
+          <!-- <audio v-bind="{autoplay: playSound}"> -->
             <!-- <source :src="require(`./assets/sounds/sound${soundNumber}.mp3`)"> -->
-            <!-- <source src="./assets/sounds/sound3.mp3"> -->
+            <source src="./assets/sounds/sound4.mp3">
             <!-- <source src="../public/sounds/sound3.mp3"> -->
             <!-- <source :src="getUrl(soundNumber)"> -->
           </audio>
@@ -57,7 +54,7 @@ export default {
       arr: [],
       hasClass: [],
       sound: '',
-      playSound: false,
+      playSound: true,
       disabledBtn: false,
       disabledParts: true,
       lost: false,
@@ -83,22 +80,15 @@ export default {
         this.round = 1;
         this.arr = [];
     },
-    showActivePart(ind) {
-      // console.log(this.round);
-        // to prevent click, when index > 5  
+    showActivePart(ind) { 
         if (this.activePartIndex < 5) {
           setTimeout(() => {
-          // console.log('this.time * timeDelay: ', this.time * this.timeDelay);
             // to remove class
-            // console.log('in timeout');
             this.activePartIndex = 5;
             this.disabledBtn = false;
             this.disabledParts = false;
         }, this.time * this.timeDelay); //1500
         }
-
-        // console.log('this.activePartIndex: ', this.activePartIndex);
-        // to prevent click, when index > 5
         return ind === this.activePartIndex;
     },
     getUrl(n) {
@@ -107,7 +97,6 @@ export default {
     //   return require(`../public/sounds/sound${n}.mp3`)
     },
     startGame() {
-      // console.log('in start game');
       this.lost = false;
       this.btnClick++;
       if (this.btnClick > 1) {
@@ -116,7 +105,7 @@ export default {
       this.disabledBtn = true;
       this.round = 1;
       this.showPart(1);
-      
+      this.playSound = true;
     },
     renderRandom() {
       return Math.floor(Math.random() * 4);
@@ -132,7 +121,6 @@ export default {
       if (this.disabledBtn || this.disabledParts) {
         return
       }
-      console.log('in handle click');
       
       event.target.classList.add('lighter');
       this.hasClass.push(event.target);
@@ -141,10 +129,8 @@ export default {
         this.hasClass.shift(0);
       }
 
+      // если игрок ошибся
       if (this.arr[this.partsClick] !== Number(event.target.dataset.index)) {
-        // console.log('event.target.dataset.index: ', event.target.dataset.index);
-        // console.log('this.arr[this.partsClick]: ', this.arr[this.partsClick]);
-        //   console.log('stop');
         this.lost = true;
         this.partsClick = 0;
         this.btnClick = 0;
@@ -152,16 +138,11 @@ export default {
             event.target.classList.remove('lighter');
             this.arr = [];
         }, 200);
-      } else {
-        // console.log('continue');
-        // console.log(event.target.classList);
         
+      } else {
         event.target.classList.add('lighter');
         this.partsClick++;
         if (this.partsClick === this.arr.length) {
-          // console.log('this.arr.length - 1: ', this.arr.length - 1);
-          // console.log('this.partsClick: ', this.partsClick);
-          
           setTimeout(() => {
             event.target.classList.remove('lighter');
           }, 200);
@@ -170,14 +151,12 @@ export default {
           this.partsClick = 0;
           setTimeout(() => {
             this.showPart(this.round);
-          }, 1500)
-          
+          }, 1500) 
         }       
       }
     },
     showPart() {
-      // console.log('row: ', row);
-      // console.log('in showpart');
+      this.disabledBtn = true;
       
       for (let i = 0; i < this.round; i++) {
         this.arr.push(this.renderRandom());
@@ -186,13 +165,12 @@ export default {
       if (this.arr.length > this.round) {
         this.arr =  this.arr.slice(0, this.round);
       }
-      // console.log('arr: ', this.arr);
       this.arr.forEach((item, index) => {
-        // console.log(this.round);
         setTimeout(() => {
             if (index === this.arr.length - 1) {
                 this.disabledBtn = false;
                 this.disabledParts = false;
+                this.btnClick = 0;
             }
             this.timeDelay = (index + 1) * this.arr.length;
             this.activePartIndex = item;
@@ -205,7 +183,6 @@ export default {
                 }, 300);
               }
             }
-            // console.log('this.activePartindex: ', this.activePartIndex);
         }, this.time * index)
 
             // this.playSound = true;
