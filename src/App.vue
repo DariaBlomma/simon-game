@@ -8,7 +8,7 @@
             <div 
             v-for="(item, i) in parts" 
             v-bind:key="item" 
-            :class="[item, {lighter: showActivePart(i)}]" 
+            :class="[item, {disabled: disabledParts}, {lighter: showActivePart(i)}]" 
             @click='handleClick' 
             style="color: white; text-align: center; padding-top: 40px"
             :data-index=i>
@@ -21,8 +21,8 @@
         </div>
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
-            <button v-bind:disabled='disabled' @click='startGame' class='start'>Start</button>
-            <p class='lost-message d-none'>Sorry, you lost after <span class='round'>{{ round }}</span> rounds</p>
+            <button v-bind:disabled='disabledBtn' @click='startGame' class='start'>Start</button>
+            <p v-show='lost' class='lost-message'>Sorry, you lost after <span class='round'>{{ round }}</span> rounds</p>
         </div>
         <div @change='changeLevel' class='game-levels'>
             <h3>Game Levels</h3>
@@ -57,37 +57,46 @@ export default {
       hasClass: [],
       sound: '',
       playSound: false,
-      disabled: false,
+      disabledBtn: false,
+      disabledParts: true,
+      lost: false,
       soundNumber: 1,
+      btnClick: 0,
+      partsClick: 0,
+      partsIndex: 0,
       parts: ['red', 'green', 'blue', 'yellow'],
       activePartIndex: 5,
       time: 1500,
-      timeDelay: 1,
-      click: 1
+      timeDelay: 1
     };
   },
   methods: {
+    // waitToStart() {
+    //   console.log('in wait');
+    //     setTimeout(() => {
+    //       this.disabledBtn = false;
+    //     }, 1000)
+    // },
     changeLevel(event) {
         this.time = Number(event.target.value);
-        this.round = 0;
+        this.round = 1;
         this.arr = [];
     },
     showActivePart(ind) {
-        // to prevent click, when index > 5
-        this.disabled = true;
+        // to prevent click, when index > 5  
         if (this.activePartIndex < 5) {
           setTimeout(() => {
-          console.log('this.time * timeDelay: ', this.time * this.timeDelay);
+          // console.log('this.time * timeDelay: ', this.time * this.timeDelay);
             // to remove class
-            console.log('in timeout');
+            // console.log('in timeout');
             this.activePartIndex = 5;
-            this.disabled = false;
+            this.disabledBtn = false;
+            this.disabledParts = false;
         }, this.time * this.timeDelay); //1500
         }
 
-        console.log('this.activePartIndex: ', this.activePartIndex);
+        // console.log('this.activePartIndex: ', this.activePartIndex);
         // to prevent click, when index > 5
-        this.disabled = false;
         return ind === this.activePartIndex;
     },
     getUrl(n) {
@@ -96,9 +105,15 @@ export default {
     //   return require(`../public/sounds/sound${n}.mp3`)
     },
     startGame() {
-      console.log('in start game');
-      this.round++;
-      this.showPart(this.round);
+      // console.log('in start game');
+      this.btnClick++;
+      if (this.btnClick > 1) {
+        return;
+      }
+      this.disabledBtn = true;
+      this.round = 1;
+      this.showPart(1);
+      
     },
     renderRandom() {
       return Math.floor(Math.random() * 4);
@@ -111,35 +126,66 @@ export default {
     },
     handleClick(event){
       // cant click before parts are shown
-      if (this.disabled) {
+      if (this.disabledBtn || this.disabledParts) {
         return
       }
       console.log('in handle click');
+
       event.target.classList.add('lighter');
       this.hasClass.push(event.target);
       if (this.hasClass.length > 1) {
         this.hasClass[0].classList.remove('lighter');
         this.hasClass.shift(0);
       }
+
+      if (this.arr[this.partsClick] !== Number(event.target.dataset.index)) {
+        // console.log('event.target.dataset.index: ', event.target.dataset.index);
+        // console.log('this.arr[this.partsClick]: ', this.arr[this.partsClick]);
+        //   console.log('stop');
+        this.lost = true;
+        this.partsClick = 0;
+      } else {
+        // console.log('continue');
+        console.log(event.target.classList);
+        event.target.classList.add('lighter');
+        this.partsClick++;
+        if (this.partsClick === this.arr.length) {
+          // console.log('this.arr.length - 1: ', this.arr.length - 1);
+          // console.log('this.partsClick: ', this.partsClick);
+          setTimeout(() => {
+            event.target.classList.remove('lighter');
+          }, 200);
+          this.round++;
+          this.partsClick = 0;
+          setTimeout(() => {
+            this.showPart(this.round);
+          }, 1500)
+          
+        }       
+      }
     },
     gamerAction(arr, row) {
       console.log('row: ', row);
       console.log('arr: ', arr);
-      console.log('in gameraction');
+      // console.log('in gameraction');
     },
     showPart(row) {
       // console.log('row: ', row);
       console.log('in showpart');
-      this.disabled = true;
+      
       for (let i = 0; i < row; i++) {
         this.arr.push(this.renderRandom());
       }
       console.log('arr: ', this.arr);
       this.arr.forEach((item, index) => {
         setTimeout(() => {
+            if (index === this.arr.length - 1) {
+                this.disabledBtn = false;
+                this.disabledParts = false;
+            }
             this.timeDelay = (index + 1) * this.arr.length;
             this.activePartIndex = item;
-            console.log('this.activePartindex: ', this.activePartIndex);
+            // console.log('this.activePartindex: ', this.activePartIndex);
         }, this.time * index)
 
         if (index === 0) {
