@@ -12,13 +12,12 @@
             @click='handleClick' 
             style="color: white; text-align: center; padding-top: 40px"
             :data-index=i>
-            {{i}}
             </div>
         </div>
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
             <button v-bind:disabled='disabledBtn' @click='startGame' class='start'>Start</button>
-            <p>{{ arr }}</p>
+            <!-- <p>{{ arr }}</p> -->
             <p v-show='lost' class='lost-message'>Sorry, you lost after <span class='round'>{{ round }}</span> rounds</p>
         </div>
         <div @change='changeLevel' class='game-levels'>
@@ -27,16 +26,6 @@
             <p><input type='radio' name='level' class='normal' value='1000'>Normal</p>
             <p><input type='radio' name='level' class='hard' value='400'>Hard</p>
         </div>
-        <div  class='audio-files'>
-          <audio autoplay>
-          <!-- <audio v-bind="{autoplay: playSound}"> -->
-            <!-- <source :src="require(`./assets/sounds/sound${soundNumber}.mp3`)"> -->
-            <source src="./assets/sounds/sound4.mp3">
-            <!-- <source src="../public/sounds/sound3.mp3"> -->
-            <!-- <source :src="getUrl(soundNumber)"> -->
-          </audio>
-        </div>
-        <!-- v-html='sound' -->
     </div>
 </template>
 
@@ -54,7 +43,6 @@ export default {
       arr: [],
       hasClass: [],
       sound: '',
-      playSound: true,
       disabledBtn: false,
       disabledParts: true,
       lost: false,
@@ -91,11 +79,6 @@ export default {
         }
         return ind === this.activePartIndex;
     },
-    getUrl(n) {
-      return require(`./assets/sounds/sound${n}.mp3`)
-      // return require(`C:/media/sound${n}.mp3`)
-    //   return require(`../public/sounds/sound${n}.mp3`)
-    },
     startGame() {
       this.lost = false;
       this.btnClick++;
@@ -105,23 +88,20 @@ export default {
       this.disabledBtn = true;
       this.round = 1;
       this.showPart(1);
-      this.playSound = true;
     },
     renderRandom() {
       return Math.floor(Math.random() * 4);
     },
     renderSound(number) {
-      this.sound = `
-        <audio autoplay>
-            <source src="../public/sounds/sound${number}.mp3">
-        </audio>`;
+      this.sound = new Audio(`/sounds/sound${number}.mp3`);
     },
     handleClick(event){
       // cant click before parts are shown
       if (this.disabledBtn || this.disabledParts) {
         return
       }
-      
+      this.renderSound(Number(event.target.dataset.index) + 1);
+      this.sound.play();
       event.target.classList.add('lighter');
       this.hasClass.push(event.target);
       if (this.hasClass.length > 1) {
@@ -157,7 +137,6 @@ export default {
     },
     showPart() {
       this.disabledBtn = true;
-      
       for (let i = 0; i < this.round; i++) {
         this.arr.push(this.renderRandom());
       }
@@ -165,8 +144,9 @@ export default {
       if (this.arr.length > this.round) {
         this.arr =  this.arr.slice(0, this.round);
       }
-      this.arr.forEach((item, index) => {
+      this.arr.forEach((item, index) => {        
         setTimeout(() => {
+          // если последний элемент массива
             if (index === this.arr.length - 1) {
                 this.disabledBtn = false;
                 this.disabledParts = false;
@@ -174,6 +154,9 @@ export default {
             }
             this.timeDelay = (index + 1) * this.arr.length;
             this.activePartIndex = item;
+
+            this.renderSound(item + 1);
+            this.sound.play();
             // если элементы дублируются, то будет эффект мигания прозрачности
             if (this.arr.length > 0 || index + 1 <= this.arr.length) {
               if (this.arr[index] === this.arr[index - 1] || this.arr[index] === this.arr[index + 1]) {
@@ -184,9 +167,6 @@ export default {
               }
             }
         }, this.time * index)
-
-            // this.playSound = true;
-            // this.soundNumber = item;
       });
     }
   }
