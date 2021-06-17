@@ -1,10 +1,6 @@
 <template>
-  <!-- <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/> -->
       <div class='container'>
         <div class='circle'>
-          
-            <!-- <part v-for="(item, i) in parts" v-bind:key="item" v-bind:class='[item, showActivePart(i)]'></part> -->
             <div 
             v-for="(item, i) in parts" 
             v-bind:key="item" 
@@ -17,7 +13,6 @@
         <div class='game-info'>
             <p><b>Round:</b><span class='round'> {{ round }} </span></p>
             <button v-bind:disabled='disabledBtn' @click='startGame' class='start'>Start</button>
-            <!-- <p>{{ arr }}</p> -->
             <p v-show='lost' class='lost-message'>Sorry, you lost after <span class='round'>{{ round }}</span> rounds</p>
         </div>
         <div @change='changeLevel' class='game-levels'>
@@ -30,13 +25,9 @@
 </template>
 
 <script>
-// import part from './components/part.vue'
 
 export default {
   name: 'App',
-  components: {
-    // part
-  },
   data() {
     return {
       round: 0,
@@ -57,12 +48,6 @@ export default {
     };
   },
   methods: {
-    // waitToStart() {
-    //   console.log('in wait');
-    //     setTimeout(() => {
-    //       this.disabledBtn = false;
-    //     }, 1000)
-    // },
     changeLevel(event) {
         this.time = Number(event.target.value);
         this.round = 1;
