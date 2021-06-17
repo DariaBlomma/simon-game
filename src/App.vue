@@ -78,7 +78,7 @@ export default {
       return Math.floor(Math.random() * 4);
     },
     renderSound(number) {
-      this.sound = new Audio(`/sounds/sound${number}.mp3`);
+      this.sound = new Audio(`sounds/sound${number}.mp3`);
     },
     handleClick(event){
       // cant click before parts are shown
